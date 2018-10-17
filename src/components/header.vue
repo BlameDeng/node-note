@@ -22,8 +22,8 @@
                 <span>饥人谷</span>
             </div>
             <div class="time">
-                <span>2018-10-17</span>
-                <span>星期五</span>
+                <span>{{formatDate().date}}</span>
+                <span>{{formatDate().day}}</span>
             </div>
         </div>
     </div>
@@ -37,12 +37,20 @@
             return { loginVisible: false }
         },
         created() {
-            setInterval(()=>{
-                this.loginVisible=!this.loginVisible;
-            },3000)
+            setInterval(() => {
+                this.loginVisible = !this.loginVisible;
+            }, 3000)
         },
-        methods:{
-
+        methods: {
+            formatDate() {
+                let now = new Date();
+                let day = now.getDay();
+                let array = ['日', '一', '二', '三', '四', '五', '六'];
+                return {
+                    date: `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`,
+                    day: `星期${array[day]}`
+                }
+            }
         }
     }
 </script>

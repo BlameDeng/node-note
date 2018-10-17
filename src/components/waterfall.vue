@@ -1,7 +1,7 @@
 <template>
     <div class="x-waterfall">
         <template v-if="col&&source&&source.length">
-            <div class="box" v-for="(n,index) in col" :key="index" ref="box">
+            <div class="box" v-for="(n,index) in col" :key="`box-${index}`" ref="box">
             </div>
             <div class="item" ref="item" v-for="(item,index) in source" :key="`item-${index}`">
                 <slot :prop="item"></slot>
@@ -45,7 +45,7 @@
                 let { width: mainWidth } = this.$el.getBoundingClientRect();
                 this.$el.style.width = mainWidth + 'px';
                 this.col = Math.floor(mainWidth / this.width); //计算分多少列
-                this.gutter = (mainWidth - this.width * this.col) / (this.col + 1); //空隙
+                this.gutter = (mainWidth - this.width * this.col) / (this.col - 1); //空隙
                 this.heightArray = Array(this.col).fill(0);
                 this.$nextTick(() => {
                     this.$refs.box.forEach(ele => {
@@ -57,7 +57,7 @@
                         let index = this.heightArray.indexOf(minH);
                         let { height } = item.getBoundingClientRect();
                         item.style.top = minH + 'px';
-                        item.style.left = this.gutter * (index + 1) + this.width * index + 'px';
+                        item.style.left = this.gutter * index + this.width * index + 'px';
                         this.$refs.box[index].style.height = (minH + height) + 'px';
                         this.$set(this.heightArray, index, minH + height);
                     })
@@ -86,7 +86,7 @@
         margin: 0 auto;
         display: flex;
         flex-wrap: wrap;
-        justify-content: space-evenly;
+        justify-content: space-between;
         align-items: flex-start;
         position: relative;
         >.box {

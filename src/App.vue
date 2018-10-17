@@ -19,7 +19,7 @@
         -moz-osx-font-smoothing: grayscale;
         font-size: 14px;
         line-height: 1.8em;
-        // background-image: url('./assets/banner.jpg');
+        background-image: url('./assets/banner.jpg');
         background-position: center center;
         background-size: cover;
     }

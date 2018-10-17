@@ -17,5 +17,9 @@
 
 <style scoped lang="scss">
     @import '@/assets/base.scss';
-    .index {width: 100%;height: 100%;}
+    .index {
+        width: 100%;
+        height: 100%;
+        padding: 0 50px;
+    }
 </style>

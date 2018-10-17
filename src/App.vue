@@ -1,9 +1,5 @@
 <template>
     <div id="app">
-        <form action="/api" method="post" @submit.prevent>
-            <input type="text" name="username">
-            <button type="submit">111</button>
-        </form>
         <router-view />
     </div>
 </template>
@@ -16,11 +12,20 @@
 
 <style lang="scss">
     #app {
+        width: 100%;
+        height: 100%;
         font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         font-size: 14px;
         line-height: 1.8em;
+        // background-image: url('./assets/banner.jpg');
+        background-position: center center;
+        background-size: cover;
+    }
+    html, body {
+        width: 100%;
+        height: 100%;
     }
     *,
     *::before,

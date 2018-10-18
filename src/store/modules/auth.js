@@ -8,8 +8,12 @@ const getters = {}
 const mutations = {}
 
 const actions = {
-    async createUser({ commit }, data) {
-        let res = await request({ url: URL.createUser, method: 'POST', data });
+    async register({ commit }, data) {
+        let res = await request({ url: URL.register, method: 'POST', data });
+        return res;
+    },
+    async login({ commit }, data) {
+        let res = await request({ url: URL.login, method: 'POST', data });
         return res;
     }
 }

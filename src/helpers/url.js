@@ -3,7 +3,8 @@ const URL = {
     allNotes: '/api/all',
     destroyNote: '/api/destroy',
     patchNote: '/api/patch',
-    createUser: '/auth/create'
+    register: '/auth/register',
+    login:'auth/login'
 }
 
 export default URL

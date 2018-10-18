@@ -15,6 +15,10 @@ const actions = {
     async login({ commit }, data) {
         let res = await request({ url: URL.login, method: 'POST', data });
         return res;
+    },
+    async check({ commit }) {
+        let res = await request({ url: URL.check });
+        return res;
     }
 }
 

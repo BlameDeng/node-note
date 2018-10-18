@@ -25,7 +25,6 @@ const register = async (ctx, next) => {
 }
 
 const login = async (ctx, next) => {
-    console.log(ctx.request.header);
     let data = ctx.request.body;
     let user = await User.findOne({ where: { username: data.username } });
     if (user) {
@@ -35,7 +34,7 @@ const login = async (ctx, next) => {
         if (password === user.password) {
             ctx.response.status = 200;
             let { username, id, createdAt, updatedAt } = user.dataValues;
-            let token = jwt.sign({ username, id }, key.jwt_key, { expiresIn: '1000' });
+            let token = jwt.sign({ username, id }, key.jwt_key, { expiresIn: '60000' });
             ctx.response.body = { username, id, createdAt, updatedAt, token };
         } else {
             ctx.response.status = 401;
@@ -47,9 +46,23 @@ const login = async (ctx, next) => {
     }
 }
 
+const check = async (ctx, next) => {
+    if (ctx.state && ctx.state.user) {
+        await User.findById(ctx.state.user.id).then(user => {
+            let { username, id, createdAt, updatedAt } = user.dataValues;
+            ctx.response.status = 200;
+            ctx.response.body = { username, id, createdAt, updatedAt, isLogin: true }
+
+        })
+    } else {
+        ctx.response.status = 200;
+        ctx.response.body = { isLogin: false };
+    }
+}
 
 router.post('/login', login);
 router.post('/register', register);
+router.get('/check', check);
 // router.delete('/destroy', destroy);
 // router.patch('/patch', patch);
 

@@ -13,11 +13,16 @@ const all = async (ctx, next) => {
 const create = async (ctx, next) => {
     let data = ctx.request.body;
     console.log(ctx.state);
-    
-    await Note.create(data).then(note => {
-        ctx.response.status = 200;
-        ctx.response.body = note.dataValues
-    })
+    let uid = ctx.state.user.id;
+    if (uid) {
+        await Note.create({ uid, ...data }).then(note => {
+            ctx.response.status = 200;
+            ctx.response.body = note.dataValues;
+        })
+    } else {
+        ctx.response.status = 401;
+        ctx.response.body = { msg: '用户未登录' };
+    }
 }
 
 const patch = async (ctx, next) => {

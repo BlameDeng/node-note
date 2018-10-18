@@ -5,9 +5,16 @@
 </template>
 
 <script>
+    import { mapActions } from 'vuex'
     export default {
-        name: "App"
-    };
+        name: "App",
+        methods: {
+            ...mapActions(['check'])
+        },
+        created() {
+            this.check();
+        }
+    }
 </script>
 
 <style lang="scss">

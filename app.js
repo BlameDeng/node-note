@@ -14,8 +14,14 @@ app.use((ctx, next) => {
     return next().catch(err => {
         if (err.status === 401) {
             console.log('401');
-            
-            console.log(err);
+            if (ctx.url === '/auth/check') {
+                ctx.response.status = 200;
+                ctx.response.body = { isLogin: false };
+            } else {
+                ctx.response.status = 401;
+                ctx.response.body = { msg: '用户未登录' };
+            }
+
         } else {
             throw (err);
         }
@@ -25,7 +31,7 @@ app.use((ctx, next) => {
 router.use('/api', api.routes());
 router.use('/auth', auth.routes());
 
-app.use(koajwt({ secret: key.jwt_key }).unless({ path: [/\/auth.?/] }));
+app.use(koajwt({ secret: key.jwt_key }).unless({ path: [/\/auth\/[^check]/] }));
 app.use(koaBody({ multipart: true, strict: false }));
 app.use(router.routes());
 // .use(router.allowedMethods());

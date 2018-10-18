@@ -4,7 +4,8 @@ const URL = {
     destroyNote: '/api/destroy',
     patchNote: '/api/patch',
     register: '/auth/register',
-    login:'auth/login'
+    login: '/auth/login',
+    check: '/auth/check'
 }
 
 export default URL

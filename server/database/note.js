@@ -1,3 +1,4 @@
+'use strict';
 const path = require('path');
 const Sequelize = require('sequelize');
 const sequelize = new Sequelize(undefined, undefined, undefined, {
@@ -28,5 +29,21 @@ const Note = sequelize.define('note', {
 // Note.findAll().then(notes => {
 //     console.log(notes)
 // })
+
+// Note.findById('10').then(note=>{
+//   console.log(note)
+// })
+
+// Note.findAll({
+//     where:{
+//         content:'hello world'
+//     }
+// }).then(notes=>{
+//     // console.log(notes)
+// })
+// Note.update({ content: '这是修改后的内容' }, { where: { id: '15' } }).then(res=>{
+//     console.log(res)
+// })
+
 
 module.exports = Note;

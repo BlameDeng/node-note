@@ -1,7 +1,7 @@
 <template>
     <div class="header">
         <div class="add">
-            <x-icon name="note" class="icon"></x-icon>
+            <x-icon name="note" class="icon" @click="onCreateNote"></x-icon>
         </div>
         <div class="login" v-show="loginVisible">
             <div class="user">
@@ -30,6 +30,7 @@
 </template>
 <script>
     import xIcon from './icon.vue'
+    import { mapActions } from 'vuex'
     export default {
         name: "Header",
         components: { xIcon },
@@ -40,8 +41,14 @@
             setInterval(() => {
                 this.loginVisible = !this.loginVisible;
             }, 3000)
+            // this.findAllNotes();
+            // this.destroyNote('7');
+            // this.patchNote({ content: 'patch', id: '22' }).then(res => {
+            //     this.findAllNotes();
+            // })
         },
         methods: {
+            ...mapActions(['createNote', 'findAllNotes', 'patchNote', 'destroyNote']),
             formatDate() {
                 let now = new Date();
                 let day = now.getDay();
@@ -50,6 +57,9 @@
                     date: `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`,
                     day: `星期${array[day]}`
                 }
+            },
+            onCreateNote() {
+                this.createNote({ content: 'hello world' });
             }
         }
     }

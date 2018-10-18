@@ -16,12 +16,6 @@ const User = sequelize.define('user', {
     }
 });
 
-// User.sync({ force: true }).then(() => {
-//     return User.create({
-//         username: 'test'
-//     })
-// })
-
 // Note.findAll().then(notes => {
 //     console.log(notes)
 // })

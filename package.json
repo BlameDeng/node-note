@@ -11,9 +11,11 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "jsonwebtoken": "^8.3.0",
     "koa": "^2.5.3",
     "koa-body": "^4.0.4",
     "koa-json": "^2.0.2",
+    "koa-jwt": "^3.5.1",
     "koa-router": "^7.4.0",
     "node-sass": "^4.9.4",
     "sass-loader": "^7.1.0",

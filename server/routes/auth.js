@@ -2,11 +2,13 @@
 const Router = require('koa-router');
 const router = new Router();
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
+const key = require('./key.js');
 const User = require('../database/user.js');
 
 const register = async (ctx, next) => {
     let data = ctx.request.body;
-    const hmac = crypto.createHmac('sha256', 'secret-key');
+    const hmac = crypto.createHmac('sha256', key.hmac_key);
     hmac.update(data.password);
     let password = hmac.digest('hex');
     let user = await User.findOne({ where: { username: data.username } });
@@ -23,22 +25,24 @@ const register = async (ctx, next) => {
 }
 
 const login = async (ctx, next) => {
+    console.log(ctx.request.header);
     let data = ctx.request.body;
     let user = await User.findOne({ where: { username: data.username } });
     if (user) {
-        const hmac = crypto.createHmac('sha256', 'secret-key');
+        const hmac = crypto.createHmac('sha256', key.hmac_key);
         hmac.update(data.password);
         let password = hmac.digest('hex');
         if (password === user.password) {
             ctx.response.status = 200;
             let { username, id, createdAt, updatedAt } = user.dataValues;
-            ctx.response.body = { username, id, createdAt, updatedAt };
+            let token = jwt.sign({ username, id }, key.jwt_key, { expiresIn: '1000' });
+            ctx.response.body = { username, id, createdAt, updatedAt, token };
         } else {
-            ctx.response.status = 400;
+            ctx.response.status = 401;
             ctx.response.body = { msg: '密码不正确' };
         }
     } else {
-        ctx.response.status = 400;
+        ctx.response.status = 401;
         ctx.response.body = { msg: '用户名不存在' };
     }
 }

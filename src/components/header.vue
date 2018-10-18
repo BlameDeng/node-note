@@ -40,9 +40,9 @@ export default {
   created() {
     // this.findAllNotes();
     // this.destroyNote(18);
-    this.patchNote({ content: 'patch', id: 4 }).then(res => {
-      this.findAllNotes();
-    });
+    // this.patchNote({ content: 'patch', id: 4 }).then(res => {
+    //   this.findAllNotes();
+    // });
   },
   methods: {
     ...mapActions([
@@ -66,7 +66,11 @@ export default {
       this.createNote({ content: 'hello world' });
     },
     onLogin() {
-      this.login({ username: this.username, password: this.password });
+      this.login({ username: this.username, password: this.password }).then(
+        res => {
+          res.token ? localStorage.setItem('token', res.token) : '';
+        }
+      );
     },
     onRegister() {
       this.register({ username: this.username, password: this.password });

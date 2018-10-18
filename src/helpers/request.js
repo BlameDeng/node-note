@@ -1,5 +1,8 @@
 import axios from 'axios'
 
+let token = localStorage.getItem('token');
+axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
+
 export default function request({ url, method = 'GET', data }) {
     return new Promise((resolve, reject) => {
         let option = { url, method };
@@ -9,7 +12,7 @@ export default function request({ url, method = 'GET', data }) {
             res.status === 200 ? resolve(res.data) : reject(res.data);
         }).catch(error => {
             console.log(error.response);
-            reject(error);
+            console.log(error.response.data.msg);
         })
     })
 }

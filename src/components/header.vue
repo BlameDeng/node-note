@@ -38,14 +38,11 @@
             return { loginVisible: true, username: '', password: '' }
         },
         created() {
-            // setInterval(() => {
-            //     this.loginVisible = !this.loginVisible;
-            // }, 3000)
             // this.findAllNotes();
-            // this.destroyNote('7');
-            // this.patchNote({ content: 'patch', id: '22' }).then(res => {
-            //     this.findAllNotes();
-            // })
+            // this.destroyNote(18);
+            this.patchNote({ content: 'patch', id: 4 }).then(res => {
+                this.findAllNotes();
+            })
         },
         methods: {
             ...mapActions([

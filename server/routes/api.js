@@ -3,53 +3,46 @@ const Router = require('koa-router');
 const router = new Router();
 const Note = require('../database/note.js');
 
-// Note.findAll().then(notes => {
-//     console.log('xxx');
-//     console.log(notes);
-// })
-// dataValues:
-//    { id: 2,
-//      content: '123456789',
-//      updatedAt: 2018-10-18T01:25:02.143Z,
-//      createdAt: 2018-10-18T01:25:02.143Z },
-
-
 const all = async (ctx, next) => {
-    ctx.response.status = 200;
-    ctx.response.body = await Note.findAll();
-    // .then(notes=>{
-    //     return notes;
-    //     console.log(notes);
-    // })
+    await Note.findAll().then(notes => {
+        ctx.response.status = 200;
+        ctx.response.body = notes;
+    })
 }
 
 const create = async (ctx, next) => {
     let data = ctx.request.body;
-    ctx.response.status = 200;
-    ctx.response.body = await Note.create(data);
+    await Note.create(data).then(note => {
+        ctx.response.status = 200;
+        ctx.response.body = note.dataValues
+    })
 }
 
 const patch = async (ctx, next) => {
-    ctx.response.status = 200;
     let { id, content } = ctx.request.body;
-    ctx.response.body = await Note.update({ content }, { where: { id } }).then(() => {
-        return Note.findById(id);
-    })
+    let note = await Note.findById(id);
+    if (note) {
+        let array = await Note.update({ content }, { where: { id } });
+        if (array[0] === 0) {
+            ctx.response.status = 400;
+            ctx.response.body = { msg: '更新失败' };
+        } else {
+            ctx.response.status = 200;
+            ctx.response.body = await Note.findById(id);
+        }
+    } else {
+        ctx.response.status = 400;
+        ctx.response.body = { msg: '笔记不存在' };
+    }
 }
 
 const destroy = async (ctx, next) => {
-    ctx.response.status = 200;
     let id = ctx.request.body.id;
-    ctx.response.body = await Note.destroy({ where: { id } }).then(res => {
-        // console.log(res);
-        return { message: '删除成功' };
+    await Note.destroy({ where: { id } }).then(res => {
+        ctx.response.status = 200;
+        ctx.response.body = { msg: '删除成功' };
     })
 }
-
-// router.get('/api/all', all);
-// router.post('/api/create', create);
-// router.delete('/api/destroy', destroy);
-// router.patch('/api/patch', patch);
 
 router.get('/all', all);
 router.post('/create', create);

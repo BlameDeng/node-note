@@ -7,13 +7,6 @@ const sequelize = new Sequelize(undefined, undefined, undefined, {
     storage: path.join(__dirname, './user.sqlite')
 });
 
-// sequelize.authenticate().then(() => {
-//         console.log('Connection has been established successfully.');
-//     })
-//     .catch(err => {
-//         console.error('Unable to connect to the database:', err);
-//     });
-
 const User = sequelize.define('user', {
     username: {
         type: Sequelize.STRING
@@ -23,9 +16,9 @@ const User = sequelize.define('user', {
     }
 });
 
-// Note.sync({ force: true }).then(() => {
-//     return Note.create({
-//         content: 'test'
+// User.sync({ force: true }).then(() => {
+//     return User.create({
+//         username: 'test'
 //     })
 // })
 

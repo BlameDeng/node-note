@@ -46,9 +46,14 @@ const destroy = async (ctx, next) => {
     })
 }
 
-router.get('/api/all', all);
-router.post('/api/create', create);
-router.delete('/api/destroy', destroy);
-router.patch('/api/patch', patch);
+// router.get('/api/all', all);
+// router.post('/api/create', create);
+// router.delete('/api/destroy', destroy);
+// router.patch('/api/patch', patch);
+
+router.get('/all', all);
+router.post('/create', create);
+router.delete('/destroy', destroy);
+router.patch('/patch', patch);
 
 module.exports = router

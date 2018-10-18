@@ -1,8 +1,9 @@
 const URL = {
-    create: '/api/create',
-    all: '/api/all',
-    destroy:'/api/destroy',
-    patch:'/api/patch'
+    createNote: '/api/create',
+    allNotes: '/api/all',
+    destroyNote: '/api/destroy',
+    patchNote: '/api/patch',
+    createUser: '/auth/create'
 }
 
 export default URL

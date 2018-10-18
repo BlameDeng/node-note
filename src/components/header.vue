@@ -6,11 +6,11 @@
         <div class="login" v-show="loginVisible">
             <div class="user">
                 <span>用户名</span>
-                <input type="text" name="username">
+                <input type="text" name="username" v-model.trim="username">
                 <span>密码</span>
-                <input type="password" name="password">
+                <input type="password" name="password" v-model.trim="password">
                 <button>登录</button>
-                <button>注册</button>
+                <button @click="onRegister">注册</button>
             </div>
             <div class="github">
                 <x-icon name="github" class="icon" title="GitHub登录"></x-icon>
@@ -35,12 +35,12 @@
         name: "Header",
         components: { xIcon },
         data() {
-            return { loginVisible: false }
+            return { loginVisible: true, username: '', password: '' }
         },
         created() {
-            setInterval(() => {
-                this.loginVisible = !this.loginVisible;
-            }, 3000)
+            // setInterval(() => {
+            //     this.loginVisible = !this.loginVisible;
+            // }, 3000)
             // this.findAllNotes();
             // this.destroyNote('7');
             // this.patchNote({ content: 'patch', id: '22' }).then(res => {
@@ -48,7 +48,13 @@
             // })
         },
         methods: {
-            ...mapActions(['createNote', 'findAllNotes', 'patchNote', 'destroyNote']),
+            ...mapActions([
+                'createNote',
+                'findAllNotes',
+                'patchNote',
+                'destroyNote',
+                'createUser'
+            ]),
             formatDate() {
                 let now = new Date();
                 let day = now.getDay();
@@ -60,6 +66,9 @@
             },
             onCreateNote() {
                 this.createNote({ content: 'hello world' });
+            },
+            onRegister() {
+                this.createUser({ username: this.username, password: this.password });
             }
         }
     }

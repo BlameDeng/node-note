@@ -5,7 +5,9 @@ const URL = {
     patchNote: '/api/patch',
     register: '/auth/register',
     login: '/auth/login',
-    check: '/auth/check'
+    check: '/auth/check',
+    logout:'/auth/logout',
+    patch:'/auth/patch'
 }
 
 export default URL

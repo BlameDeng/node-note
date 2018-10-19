@@ -4,42 +4,41 @@ const router = new Router();
 const Note = require('../database/note.js');
 
 const all = async (ctx, next) => {
-    await Note.findAll().then(notes => {
+    let uid = ctx.state.user.id;
+    await Note.findAll({ where: { uid } }).then(notes => {
         ctx.response.status = 200;
-        ctx.response.body = notes;
+        ctx.response.body = { status: 'success', data: notes };
     })
 }
 
 const create = async (ctx, next) => {
     let data = ctx.request.body;
-    console.log(ctx.state);
     let uid = ctx.state.user.id;
     if (uid) {
         await Note.create({ uid, ...data }).then(note => {
             ctx.response.status = 200;
-            ctx.response.body = note.dataValues;
+            ctx.response.body = { status: 'success', data: note.dataValues };
         })
     } else {
         ctx.response.status = 401;
-        ctx.response.body = { msg: '用户未登录' };
+        ctx.response.body = { status: 'fail', msg: '用户未登录' };
     }
 }
 
 const patch = async (ctx, next) => {
     let { id, content } = ctx.request.body;
     let note = await Note.findById(id);
+    ctx.response.status = 200;
     if (note) {
         let array = await Note.update({ content }, { where: { id } });
         if (array[0] === 0) {
-            ctx.response.status = 400;
-            ctx.response.body = { msg: '更新失败' };
+            ctx.response.body = { status: 'fail', msg: '更新失败' };
         } else {
-            ctx.response.status = 200;
-            ctx.response.body = await Note.findById(id);
+            let note = await Note.findById(id);
+            ctx.response.body = { status: 'success', data: note };
         }
     } else {
-        ctx.response.status = 400;
-        ctx.response.body = { msg: '笔记不存在' };
+        ctx.response.body = { status: 'fail', msg: '笔记不存在' };
     }
 }
 
@@ -47,7 +46,7 @@ const destroy = async (ctx, next) => {
     let id = ctx.request.body.id;
     await Note.destroy({ where: { id } }).then(res => {
         ctx.response.status = 200;
-        ctx.response.body = { msg: '删除成功' };
+        ctx.response.body = { status: 'success', msg: '删除成功' };
     })
 }
 

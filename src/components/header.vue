@@ -11,33 +11,83 @@
                 <input type="password" name="password" v-model.trim="password" @keyup.enter="onLogin">
                 <button @click="onLogin">登录</button>
                 <button @click="onRegister">注册</button>
-                <button>第三方登录</button>
+                <transition name="fade">
+                    <div class="register-layer" v-show="registerVisible">
+                        <div class="register">
+                            <div>
+                                <span>用户名</span>
+                                <input type="text" name="username" v-model.trim="formData.username">
+                            </div>
+                            <div>
+                                <span>密码</span>
+                                <input type="password" name="password" v-model.trim="formData.password">
+                            </div>
+                            <div>
+                                <button @click="onCancle">取消</button>
+                                <button @click="onSaveRegister">确定</button>
+                            </div>
+                        </div>
+                    </div>
+                </transition>
             </div>
-            <!-- <div class="github">
-                <x-icon name="github" class="icon" title="GitHub登录"></x-icon>
-            </div> -->
         </div>
         <div class="user-info" v-show="isLogin">
             <div class="username">
-                <x-icon name="person" class="icon"></x-icon>
-                <span>{{user&&user.username}}</span>
+                <div class="name">
+                    <x-icon name="person" class="icon"></x-icon>
+                    <span>{{user&&user.username}}</span>
+                </div>
+                <div class="action">
+                    <span @click="onChange">[修改密码]</span>
+                    <span @click="onLogout">[注销登录]</span>
+                    <transition name="fade">
+                        <div class="change-layer" v-show="changeVisible" v-if="user">
+                            <div class="change-password">
+                                <div>
+                                    <span>用户名</span>
+                                    <input type="text" name="username" v-model.trim="user.username" readonly>
+                                </div>
+                                <div>
+                                    <span>新密码</span>
+                                    <input type="password" name="password" v-model.trim="newPassword">
+                                </div>
+                                <div> <span>确认密码</span>
+                                    <input type="password" name="password" v-model.trim="confirmPassword">
+                                </div>
+                                <div>
+                                    <button @click="onCancle">取消</button>
+                                    <button @click="onSaveChange">确定</button>
+                                </div>
+                            </div>
+                        </div>
+                    </transition>
+                </div>
             </div>
             <div class="time">
-                <span>{{formatDate().date}}</span>
-                <span>{{formatDate().day}}</span>
+                <span>{{formatDate().date}} {{formatDate().day}}</span>
+                <span>{{city}} 多云</span>
             </div>
         </div>
     </div>
 </template>
 <script>
     import xIcon from './icon.vue';
-    import { mapState, mapMutations, mapActions } from 'vuex';
-    import { stat } from 'fs';
+    import { mapState, mapActions } from 'vuex';
+    import jsonp from '@/helpers/jsonp.js';
     export default {
         name: 'Header',
         components: { xIcon },
         data() {
-            return { username: '', password: '' };
+            return {
+                username: '',
+                password: '',
+                city: '',
+                changeVisible: false,
+                newPassword: '',
+                confirmPassword: '',
+                registerVisible: false,
+                formData: { username: '', password: '' }
+            };
         },
         computed: {
             ...mapState({
@@ -46,21 +96,31 @@
             })
         },
         created() {
-            // this.findAllNotes();
+            jsonp('https://api.map.baidu.com/location/ip', {
+                ak: '3oZjGfC42rDxKbv7tH3zXEXOvozafX20',
+                coor: 'bd09ll'
+            }).then(res => {
+                this.city = res.content.address_detail.city;
+            });
+
             // this.destroyNote(18);
             // this.patchNote({ content: 'patch', id: 4 }).then(res => {
             //   this.findAllNotes();
             // });
         },
+        mounted() {
+            this.isLogin ? this.findAllNotes() : '';
+        },
         methods: {
-            ...mapMutations(['setLogin']),
             ...mapActions([
                 'createNote',
                 'findAllNotes',
                 'patchNote',
                 'destroyNote',
                 'login',
-                'register'
+                'register',
+                'logout',
+                'changePassword'
             ]),
             formatDate() {
                 let now = new Date();
@@ -74,27 +134,130 @@
             onCreateNote() {
                 this.createNote({ content: 'hello world' });
             },
+            validate(username, password) {
+                let pattern1 = /^[\w\u4e00-\u9fa5]{6,15}$/;
+                let pattern2 = /^.{6,15}$/;
+                return pattern1.test(username) && pattern2.test(password);
+            },
             onLogin() {
                 if (!this.username || !this.password) { return }
-                this.login({ username: this.username, password: this.password }).catch(err => {
-                    this.$message({ type: 'error', message: err.msg, duration: 2000 });
-                });
+                let result = this.validate(this.username, this.password);
+                if (!result) {
+                    this.$message({ type: 'warning', message: '格式不正确！用户名、密码为6到15个字符', duration: 2000 });
+                    return
+                }
+                this.login({ username: this.username, password: this.password }).catch(
+                    err => {
+                        this.$message({ type: 'error', message: err.msg, duration: 2000 });
+                    }
+                );
             },
             onRegister() {
-                if (!this.username || !this.password) { return }
-                this.register({ username: this.username, password: this.password })
+                this.registerVisible = true;
+                this.formData.username = '';
+                this.formData.password = '';
+            },
+            onSaveRegister() {
+                if (!this.formData.username || !this.formData.password) { return }
+                let result = this.validate(this.formData.username, this.formData.password);
+                if (!result) {
+                    this.$message({ type: 'warning', message: '格式不正确！用户名、密码为6到15个字符', duration: 2000 });
+                    return
+                }
+                this.register({ username: this.formData.username, password: this.formData.password })
                     .then(res => {
                         this.$message({ type: 'success', message: res.msg, duration: 2000 });
+                        this.registerVisible = false;
                     })
                     .catch(err => {
                         this.$message({ type: 'error', message: err.msg, duration: 2000 });
                     });
+            },
+            onLogout() {
+                this.logout();
+            },
+            onChange() {
+                this.changeVisible = true;
+                this.newPassword = '';
+                this.confirmPassword = '';
+            },
+            onCancle() {
+                this.changeVisible = false;
+                this.registerVisible = false;
+            },
+            onSaveChange() {
+                if (!this.newPassword || !this.confirmPassword) {
+                    this.$message({ type: 'warning', message: '密码不能为空', duration: 2000 });
+                    return;
+                }
+                if (this.newPassword !== this.confirmPassword) {
+                    this.$message({ type: 'warning', message: '两次输入密码不一致', duration: 2000 });
+                    return;
+                }
+                if (!/^.{6,15}$/.test(this.newPassword)) {
+                    this.$message({ type: 'warning', message: '格式不正确！密码为6到15个字符', duration: 2000 });
+                    return
+                }
+                this.changePassword({ username: this.user.username, password: this.newPassword })
+                    .then(res => {
+                        this.$message({ type: 'success', message: res.msg, duration: 2000 });
+                        this.changeVisible = false;
+                    })
+                    .catch(err => {
+                        this.$message({ type: 'error', message: err.msg, duration: 2000 });
+                    })
             }
         }
     };
 </script>
 <style scoped lang="scss">
     @import '@/assets/base.scss';
+    @mixin form {
+        width: 400px;
+        height: 200px;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        background: $bg;
+        border-radius: 4px;
+        color: $content;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        align-items: center;
+        >div {
+            >span {
+                display: inline-flex;
+                justify-content: flex-end;
+                width: 80px;
+                margin-right: 10px;
+            }
+            >input {
+                width: 200px;
+                padding-left: .5em;
+            }
+            >button {
+                padding: 4px 15px;
+                background: none;
+                box-shadow: none;
+                border: .5px solid $border;
+                margin: 0 10px;
+                cursor: pointer;
+                border-radius: 4px;
+                &:focus {
+                    border: .5px solid $p;
+                    outline: none;
+                    box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+                }
+            }
+        }
+    }
+    @mixin user-flex {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
     .header {
         width: 100%;
         height: 60px;
@@ -102,7 +265,7 @@
         display: flex;
         justify-content: flex-end;
         align-items: center;
-        padding: 0 100px;
+        padding: 0 40px;
         color: #fff;
         &.is-login {
             justify-content: space-between;
@@ -141,6 +304,18 @@
                         outline: none;
                     }
                 }
+                >.register-layer {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    z-index: 2;
+                    >.register {
+                        @include form;
+                    }
+                }
             }
             >.github {
                 >.icon {
@@ -150,32 +325,61 @@
                 }
             }
         }
-        @mixin user-flex {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
         >.user-info {
             @include user-flex;
             user-select: none;
             >.username {
                 font-size: 14px;
-                @include user-flex;
                 cursor: pointer;
-                >.icon {
-                    width: 15px;
-                    height: 15px;
-                    margin-right: 5px;
+                text-align: center;
+                line-height: 1.4em;
+                @include user-flex;
+                >.name {
+                    @include user-flex;
+                    margin-right: 10px;
+                    >.icon {
+                        width: 15px;
+                        height: 15px;
+                        margin-right: 5px;
+                    }
+                }
+                >.action {
+                    >.change-layer {
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0, 0, 0, 0.5);
+                        z-index: 2;
+                        >.change-password {
+                            @include form;
+                        }
+                    }
+                    >span {
+                        font-size: 12px;
+                        color: $sub;
+                        @include user-flex;
+                    }
                 }
             }
             >.time {
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
+                align-items: center;
+                margin-left: 20px;
                 font-size: 12px;
                 color: $sub;
                 cursor: default;
+                line-height: 1.4em;
             }
         }
+    }
+    .fade-enter-active, .fade-leave-active {
+        transition: opacity .3s linear;
+    }
+    .fade-enter, .fade-leave-to {
+        opacity: 0;
     }
 </style>

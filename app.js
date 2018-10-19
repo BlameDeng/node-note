@@ -36,7 +36,7 @@ app.use((ctx, next) => {
 router.use('/api', api.routes());
 router.use('/auth', auth.routes());
 
-app.use(koajwt({ secret: key.jwt_key }).unless({ path: [/\/auth\/[^check]/] }));
+app.use(koajwt({ secret: key.jwt_key }).unless({ path: ['/auth/register', '/auth/login'] }));
 app.use(koaBody({ multipart: true, strict: false }));
 app.use(router.routes());
 // .use(router.allowedMethods());

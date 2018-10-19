@@ -12,7 +12,7 @@
             ...mapActions(['check'])
         },
         created() {
-            this.check();
+            localStorage.getItem('token') ? this.check() : '';
         }
     }
 </script>

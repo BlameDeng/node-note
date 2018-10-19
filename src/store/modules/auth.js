@@ -27,7 +27,6 @@ const actions = {
     },
     async login({ commit }, data) {
         let res = await request({ url: URL.login, method: 'POST', data });
-        console.log(res);
         commit('setUser', res.data);
         res.isLogin ? commit('setLogin', res.isLogin) : '';
         res.token ? localStorage.setItem('token', res.token) : '';
@@ -37,6 +36,19 @@ const actions = {
         let res = await request({ url: URL.check });
         commit('setLogin', res.isLogin);
         commit('setUser', res.data);
+        return res;
+    },
+    async logout({ commit }) {
+        let res = await request({ url: URL.logout });
+        commit('setLogin', false);
+        commit('setUser', null);
+        localStorage.getItem('token') ? localStorage.removeItem('token') : '';
+        return res;
+    },
+    async changePassword({ commit }, data) {
+        let res = await request({ url: URL.patch, method: 'PATCH', data });
+        commit('setUser', res.data);
+        res.token ? localStorage.setItem('token', res.token) : '';
         return res;
     }
 }

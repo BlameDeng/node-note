@@ -12,14 +12,23 @@ const register = async (ctx, next) => {
     hmac.update(data.password);
     let password = hmac.digest('hex');
     let user = await User.findOne({ where: { username: data.username } });
+    ctx.response.status = 200;
     if (user) {
-        ctx.response.status = 400;
-        ctx.response.body = { msg: '用户名已存在' };
+        ctx.response.body = {
+            status: 'fail',
+            msg: '用户名已存在'
+        };
     } else {
         await User.create({ username: data.username, password }).then(user => {
             let { username, id, createdAt, updatedAt } = user.dataValues;
-            ctx.response.status = 200;
-            ctx.response.body = { username, id, createdAt, updatedAt };
+            let token = jwt.sign({ username, id }, key.jwt_key, { expiresIn: '1h' });
+            ctx.response.body = {
+                status: 'success',
+                msg: '注册成功！',
+                data: { username, id, createdAt, updatedAt },
+                token,
+                isLogin: true
+            };
         });
     }
 }
@@ -27,36 +36,44 @@ const register = async (ctx, next) => {
 const login = async (ctx, next) => {
     let data = ctx.request.body;
     let user = await User.findOne({ where: { username: data.username } });
+    ctx.response.status = 200;
     if (user) {
         const hmac = crypto.createHmac('sha256', key.hmac_key);
         hmac.update(data.password);
         let password = hmac.digest('hex');
         if (password === user.password) {
-            ctx.response.status = 200;
             let { username, id, createdAt, updatedAt } = user.dataValues;
-            let token = jwt.sign({ username, id }, key.jwt_key, { expiresIn: '60000' });
-            ctx.response.body = { username, id, createdAt, updatedAt, token };
+            let token = jwt.sign({ username, id }, key.jwt_key, { expiresIn: '1h' });
+            ctx.response.body = {
+                status: 'success',
+                data: { username, id, createdAt, updatedAt },
+                token,
+                isLogin: true
+            };
         } else {
-            ctx.response.status = 401;
-            ctx.response.body = { msg: '密码不正确' };
+            ctx.response.body = { status: 'fail', msg: '密码不正确' };
         }
     } else {
-        ctx.response.status = 401;
-        ctx.response.body = { msg: '用户名不存在' };
+        ctx.response.body = { status: 'fail', msg: '用户名不存在' };
     }
 }
 
 const check = async (ctx, next) => {
+    ctx.response.status = 200;
     if (ctx.state && ctx.state.user) {
         await User.findById(ctx.state.user.id).then(user => {
             let { username, id, createdAt, updatedAt } = user.dataValues;
-            ctx.response.status = 200;
-            ctx.response.body = { username, id, createdAt, updatedAt, isLogin: true }
-
+            ctx.response.body = {
+                status: 'success',
+                isLogin: true,
+                data: { username, id, createdAt, updatedAt }
+            }
         })
     } else {
-        ctx.response.status = 200;
-        ctx.response.body = { isLogin: false };
+        ctx.response.body = {
+            status: 'success',
+            isLogin: false
+        };
     }
 }
 

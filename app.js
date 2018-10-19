@@ -16,12 +16,17 @@ app.use((ctx, next) => {
             console.log('401');
             if (ctx.url === '/auth/check') {
                 ctx.response.status = 200;
-                ctx.response.body = { isLogin: false };
+                ctx.response.body = {
+                    status: 'success',
+                    isLogin: false
+                };
             } else {
                 ctx.response.status = 401;
-                ctx.response.body = { msg: '用户未登录' };
+                ctx.response.body = {
+                    status: 'fail',
+                    msg: '用户未登录'
+                };
             }
-
         } else {
             throw (err);
         }

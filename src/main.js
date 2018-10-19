@@ -4,6 +4,9 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import store from './store'
+import message from '@/components/message/message.js'
+
+Vue.use(message)
 
 Vue.config.productionTip = false
 

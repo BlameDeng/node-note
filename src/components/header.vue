@@ -24,7 +24,7 @@
                             </div>
                             <div>
                                 <button @click="onCancle">取消</button>
-                                <button @click="onSaveRegister">确定</button>
+                                <button @click="onSaveRegister">注册</button>
                             </div>
                         </div>
                     </div>
@@ -71,9 +71,9 @@
     </div>
 </template>
 <script>
-    import xIcon from './icon.vue';
-    import { mapState, mapActions } from 'vuex';
-    import jsonp from '@/helpers/jsonp.js';
+    import xIcon from './icon.vue'
+    import { mapState, mapActions } from 'vuex'
+    import jsonp from '@/helpers/jsonp.js'
     export default {
         name: 'Header',
         components: { xIcon },
@@ -103,7 +103,7 @@
                 this.city = res.content.address_detail.city;
             });
 
-            // this.destroyNote(18);
+            
             // this.patchNote({ content: 'patch', id: 4 }).then(res => {
             //   this.findAllNotes();
             // });
@@ -135,7 +135,7 @@
                 this.createNote({ content: 'hello world' });
             },
             validate(username, password) {
-                let pattern1 = /^[\w\u4e00-\u9fa5]{6,15}$/;
+                let pattern1 = /^[\w\u4e00-\u9fa5]{1,15}$/;
                 let pattern2 = /^.{6,15}$/;
                 return pattern1.test(username) && pattern2.test(password);
             },
@@ -143,7 +143,7 @@
                 if (!this.username || !this.password) { return }
                 let result = this.validate(this.username, this.password);
                 if (!result) {
-                    this.$message({ type: 'warning', message: '格式不正确！用户名、密码为6到15个字符', duration: 2000 });
+                    this.$message({ type: 'warning', message: '格式不正确！用户名为1到15个字符，密码为6到15个字符', duration: 2000 });
                     return
                 }
                 this.login({ username: this.username, password: this.password }).catch(
@@ -161,7 +161,7 @@
                 if (!this.formData.username || !this.formData.password) { return }
                 let result = this.validate(this.formData.username, this.formData.password);
                 if (!result) {
-                    this.$message({ type: 'warning', message: '格式不正确！用户名、密码为6到15个字符', duration: 2000 });
+                    this.$message({ type: 'warning', message: '格式不正确！用户名为1到15个字符，密码为6到15个字符', duration: 2000 });
                     return
                 }
                 this.register({ username: this.formData.username, password: this.formData.password })
@@ -175,6 +175,7 @@
             },
             onLogout() {
                 this.logout();
+                this.password = '';
             },
             onChange() {
                 this.changeVisible = true;
@@ -261,7 +262,6 @@
     .header {
         width: 100%;
         height: 60px;
-        border: 1px solid red;
         display: flex;
         justify-content: flex-end;
         align-items: center;
@@ -336,7 +336,8 @@
                 @include user-flex;
                 >.name {
                     @include user-flex;
-                    margin-right: 10px;
+                    font-size: 18px;
+                    margin-right: 13px;
                     >.icon {
                         width: 15px;
                         height: 15px;

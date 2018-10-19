@@ -1,9 +1,12 @@
 <template>
     <div class="main">
-        <x-waterfall :width="200" :source="source" ref="waterfall" @scroll-bottom="xxx">
-            <div slot-scope="slotProps" class="info" :class="`age-${slotProps.prop.age}`" draggable="true">
-                <div class="name">{{slotProps.prop.name}}</div>
-                <div class="age">{{slotProps.prop.age}}</div>
+        <x-waterfall :width="200" :source="allNotes" ref="waterfall" v-if="allNotes&&allNotes.length">
+            <div slot-scope="slotProps" class="note" draggable="true" :style="{background:colors[random()]}">
+                <div class="time">
+                    {{slotProps.prop.createdAt|time}}
+                    <x-icon name="x" class="icon" title="删除" @click="onDelete(slotProps.prop)"></x-icon>
+                </div>
+                <div class="content">{{slotProps.prop.content}}</div>
             </div>
         </x-waterfall>
     </div>
@@ -11,72 +14,50 @@
 
 <script>
     import xWaterfall from './waterfall.vue'
+    import xIcon from './icon.vue'
+    import { mapState, mapActions } from 'vuex'
     export default {
         name: "Main",
-        components: { xWaterfall },
+        components: { xWaterfall, xIcon },
         data() {
-            return {
-                source: [
-                    { name: 'xm', age: 4 },
-                    { name: 'xm', age: 2 },
-                    { name: 'xm', age: 3 },
-                    { name: 'xm', age: 4 },
-                    { name: 'xm', age: 5 },
-                    { name: 'xm', age: 6 },
-                    { name: 'xm', age: 4 },
-                    { name: 'xm', age: 2 },
-                    { name: 'xm', age: 3 },
-                    { name: 'xm', age: 4 },
-                    { name: 'xm', age: 5 },
-                    { name: 'xm', age: 6 },
-                    { name: 'xm', age: 4 },
-                    { name: 'xm', age: 2 },
-                    { name: 'xm', age: 3 },
-                    { name: 'xm', age: 4 },
-                    { name: 'xm', age: 5 },
-                    { name: 'xm', age: 6 },
-                    { name: 'xm', age: 4 },
-                    { name: 'xm', age: 2 },
-                    { name: 'xm', age: 3 },
-                    { name: 'xm', age: 4 },
-                    { name: 'xm', age: 5 },
-                    { name: 'xm', age: 6 },
-                    { name: 'xm', age: 4 },
-                    { name: 'xm', age: 2 },
-                    { name: 'xm', age: 3 },
-                    { name: 'xm', age: 4 },
-                    { name: 'xm', age: 5 },
-                    { name: 'xm', age: 6 },
-                    { name: 'xm', age: 4 },
-                    { name: 'xm', age: 2 },
-                    { name: 'xm', age: 3 },
-                    { name: 'xm', age: 4 },
-                    { name: 'xm', age: 5 },
-                    { name: 'xm', age: 6 }
-                ]
+            return { colors: ['#ff9900', '#19be6b', '#ed4014', '#5cadff', '#f2eb67', '#dcdee2'] }
+        },
+        filters: {
+            time(val) {
+                let temp = new Date(val);
+                let hour = temp.getHours();
+                let min = temp.getMinutes();
+                hour < 10 ? hour = '0' + hour : '';
+                min < 10 ? min = '0' + min : '';
+                return `${temp.getFullYear()}-${temp.getMonth()+1}-${temp.getDate()} ${hour}:${min}`;
             }
+        },
+        computed: {
+            ...mapState({
+                allNotes: state => state.note.allNotes
+            })
         },
         mounted() {},
         methods: {
-            xxx() {
-                // console.log('爸爸知道了，马上处理');
-                // setTimeout(() => {
-                //     [
-                //         { name: 'xm', age: 16 },
-                //         { name: 'xm', age: 11 },
-                //         { name: 'xm', age: 12 },
-                //         { name: 'xm', age: 13 },
-                //         { name: 'xm', age: 14 },
-                //         { name: 'xm', age: 15 },
-                //         { name: 'xm', age: 16 }
-                //     ].forEach(ele => {
-                //         this.source.push(ele)
-                //     });
-                // }, 1000)
+            ...mapActions([
+                'createNote',
+                'findAllNotes',
+                'patchNote',
+                'destroyNote',
+                'login',
+                'register',
+                'logout',
+                'changePassword'
+            ]),
+            random() {
+                return Math.floor(Math.random() * 6);
+            },
+            onDelete(note) {
+                console.log(note.id);
 
+                this.destroyNote(note.id);
             }
-        }
-
+        },
     }
 </script>
 
@@ -84,14 +65,33 @@
     @import '@/assets/base.scss';
     .main {
         width: 100%;
-        color: #fff;
-        .info {
-            border: .5px solid green;
+        .note {
             margin: 10px 0;
-            @for $i from 1 through 20 {
-                &.age-#{$i} {
-                    height: 40px * $i;
+            >.time {
+                color: $content;
+                font-size: 12px;
+                padding: 0 .5em;
+                border-bottom: .5px solid rgba(0, 0, 0, 0.2);
+                position: relative;
+                >.icon {
+                    width: 10px;
+                    height: 10px;
+                    display: none;
+                    position: absolute;
+                    top: 50%;
+                    right: 5px;
+                    transform: translateY(-50%);
                 }
+                &:hover {
+                    >.icon {
+                        display: inline;
+                        cursor: pointer;
+                    }
+                }
+            }
+            >.content {
+                color: $title;
+                padding: 0 .5em;
             }
         }
     }

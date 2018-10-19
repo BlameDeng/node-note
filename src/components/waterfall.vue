@@ -4,7 +4,7 @@
             <div class="box" v-for="(n,index) in col" :key="`box-${index}`" ref="box">
             </div>
             <div class="item" ref="item" v-for="(item,index) in source" :key="`item-${index}`">
-                <slot :prop="item"></slot>
+                <slot :prop="item" :index="index"></slot>
             </div>
         </template>
     </div>

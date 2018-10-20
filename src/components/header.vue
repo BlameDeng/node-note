@@ -2,6 +2,15 @@
     <div class="header" :class="{['is-login']:isLogin}">
         <div class="add" v-show="isLogin">
             <x-icon name="note" class="icon" @click="onCreateNote"></x-icon>
+            <transition name="fade">
+                <div class="note" v-show="createVisible">
+                    <input type="text" v-model.trim="content">
+                    <div>
+                        <button @click="onCancle">取消</button>
+                        <button @click="createNoteSave">添加</button>
+                    </div>
+                </div>
+            </transition>
         </div>
         <div class="login" v-show="!isLogin">
             <div class="user">
@@ -86,7 +95,9 @@
                 newPassword: '',
                 confirmPassword: '',
                 registerVisible: false,
-                formData: { username: '', password: '' }
+                formData: { username: '', password: '' },
+                content: '',
+                createVisible: false
             };
         },
         computed: {
@@ -102,11 +113,6 @@
             }).then(res => {
                 this.city = res.content.address_detail.city;
             });
-
-            
-            // this.patchNote({ content: 'patch', id: 4 }).then(res => {
-            //   this.findAllNotes();
-            // });
         },
         mounted() {
             this.isLogin ? this.findAllNotes() : '';
@@ -132,7 +138,15 @@
                 };
             },
             onCreateNote() {
-                this.createNote({ content: 'hello world' });
+                this.createVisible = true;
+
+            },
+            createNoteSave() {
+                if (!this.content) { return }
+                this.createNote({ content: this.content }).then(res => {
+                    this.createVisible = false;
+                    this.content = '';
+                })
             },
             validate(username, password) {
                 let pattern1 = /^[\w\u4e00-\u9fa5]{1,15}$/;
@@ -140,11 +154,17 @@
                 return pattern1.test(username) && pattern2.test(password);
             },
             onLogin() {
-                if (!this.username || !this.password) { return }
+                if (!this.username || !this.password) {
+                    return;
+                }
                 let result = this.validate(this.username, this.password);
                 if (!result) {
-                    this.$message({ type: 'warning', message: '格式不正确！用户名为1到15个字符，密码为6到15个字符', duration: 2000 });
-                    return
+                    this.$message({
+                        type: 'warning',
+                        message: '格式不正确！用户名为1到15个字符，密码为6到15个字符',
+                        duration: 2000
+                    });
+                    return;
                 }
                 this.login({ username: this.username, password: this.password }).catch(
                     err => {
@@ -158,13 +178,25 @@
                 this.formData.password = '';
             },
             onSaveRegister() {
-                if (!this.formData.username || !this.formData.password) { return }
-                let result = this.validate(this.formData.username, this.formData.password);
-                if (!result) {
-                    this.$message({ type: 'warning', message: '格式不正确！用户名为1到15个字符，密码为6到15个字符', duration: 2000 });
-                    return
+                if (!this.formData.username || !this.formData.password) {
+                    return;
                 }
-                this.register({ username: this.formData.username, password: this.formData.password })
+                let result = this.validate(
+                    this.formData.username,
+                    this.formData.password
+                );
+                if (!result) {
+                    this.$message({
+                        type: 'warning',
+                        message: '格式不正确！用户名为1到15个字符，密码为6到15个字符',
+                        duration: 2000
+                    });
+                    return;
+                }
+                this.register({
+                        username: this.formData.username,
+                        password: this.formData.password
+                    })
                     .then(res => {
                         this.$message({ type: 'success', message: res.msg, duration: 2000 });
                         this.registerVisible = false;
@@ -185,28 +217,44 @@
             onCancle() {
                 this.changeVisible = false;
                 this.registerVisible = false;
+                this.createVisible = false;
             },
             onSaveChange() {
                 if (!this.newPassword || !this.confirmPassword) {
-                    this.$message({ type: 'warning', message: '密码不能为空', duration: 2000 });
+                    this.$message({
+                        type: 'warning',
+                        message: '密码不能为空',
+                        duration: 2000
+                    });
                     return;
                 }
                 if (this.newPassword !== this.confirmPassword) {
-                    this.$message({ type: 'warning', message: '两次输入密码不一致', duration: 2000 });
+                    this.$message({
+                        type: 'warning',
+                        message: '两次输入密码不一致',
+                        duration: 2000
+                    });
                     return;
                 }
                 if (!/^.{6,15}$/.test(this.newPassword)) {
-                    this.$message({ type: 'warning', message: '格式不正确！密码为6到15个字符', duration: 2000 });
-                    return
+                    this.$message({
+                        type: 'warning',
+                        message: '格式不正确！密码为6到15个字符',
+                        duration: 2000
+                    });
+                    return;
                 }
-                this.changePassword({ username: this.user.username, password: this.newPassword })
+                this.changePassword({
+                        username: this.user.username,
+                        password: this.newPassword
+                    })
                     .then(res => {
                         this.$message({ type: 'success', message: res.msg, duration: 2000 });
                         this.changeVisible = false;
                     })
                     .catch(err => {
                         this.$message({ type: 'error', message: err.msg, duration: 2000 });
-                    })
+                    });
             }
         }
     };
@@ -236,18 +284,18 @@
             }
             >input {
                 width: 200px;
-                padding-left: .5em;
+                padding-left: 0.5em;
             }
             >button {
                 padding: 4px 15px;
                 background: none;
                 box-shadow: none;
-                border: .5px solid $border;
+                border: 0.5px solid $border;
                 margin: 0 10px;
                 cursor: pointer;
                 border-radius: 4px;
                 &:focus {
-                    border: .5px solid $p;
+                    border: 0.5px solid $p;
                     outline: none;
                     box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
                 }
@@ -275,6 +323,48 @@
                 width: 30px;
                 height: 30px;
                 cursor: pointer;
+            }
+            >.note {
+                background: #fff;
+                position: fixed;
+                top: 40%;
+                left: 50%;
+                transform: translateX(-50%) translateY(-50%);
+                width: 250px;
+                border-radius: 4px;
+                @include user-flex;
+                flex-direction: column;
+                padding: 10px;
+                z-index: 10;
+                >input {
+                    margin: 5px;
+                    padding: .5em;
+                    border-radius: 4px;
+                    box-shadow: none;
+                    border: .5px solid $border;
+                    width: 100%;
+                    &:focus {
+                        outline: none;
+                    }
+                }
+                >div {
+                    align-self: flex-end;
+                    margin-top: 10px;
+                    >button {
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        background: none;
+                        box-shadow: none;
+                        border: 0.5px solid $border;
+                        cursor: pointer;
+                        border-radius: 4px;
+                        &:focus {
+                            border: 0.5px solid $p;
+                            outline: none;
+                            box-shadow: 0 0 6px rgba(0, 0, 0, .2);
+                        }
+                    }
+                }
             }
         }
         >.login {
@@ -310,8 +400,8 @@
                     left: 0;
                     width: 100%;
                     height: 100%;
-                    background: rgba(0, 0, 0, 0.5);
-                    z-index: 2;
+                    background: rgba(0, 0, 0, .5);
+                    z-index: 10;
                     >.register {
                         @include form;
                     }
@@ -352,7 +442,7 @@
                         width: 100%;
                         height: 100%;
                         background: rgba(0, 0, 0, 0.5);
-                        z-index: 2;
+                        z-index: 10;
                         >.change-password {
                             @include form;
                         }
@@ -377,10 +467,12 @@
             }
         }
     }
-    .fade-enter-active, .fade-leave-active {
-        transition: opacity .3s linear;
+    .fade-enter-active,
+    .fade-leave-active {
+        transition: opacity 0.3s linear;
     }
-    .fade-enter, .fade-leave-to {
+    .fade-enter,
+    .fade-leave-to {
         opacity: 0;
     }
 </style>

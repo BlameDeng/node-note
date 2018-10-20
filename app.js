@@ -13,7 +13,6 @@ const router = new Router();
 app.use((ctx, next) => {
     return next().catch(err => {
         if (err.status === 401) {
-            console.log('401');
             if (ctx.url === '/auth/check') {
                 ctx.response.status = 200;
                 ctx.response.body = {
@@ -39,7 +38,6 @@ router.use('/auth', auth.routes());
 app.use(koajwt({ secret: key.jwt_key }).unless({ path: ['/auth/register', '/auth/login'] }));
 app.use(koaBody({ multipart: true, strict: false }));
 app.use(router.routes());
-// .use(router.allowedMethods());
 app.listen(8989, () => {
     console.log('Koa开始监听8989端口');
 });

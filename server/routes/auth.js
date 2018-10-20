@@ -113,7 +113,6 @@ router.post('/login', login);
 router.post('/register', register);
 router.get('/check', check);
 router.get('/logout', logout);
-// router.delete('/destroy', destroy);
 router.patch('/patch', patch);
 
 module.exports = router

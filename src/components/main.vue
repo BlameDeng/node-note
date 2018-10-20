@@ -1,7 +1,7 @@
 <template>
     <div class="main">
         <x-waterfall :width="200" :source="allNotes" ref="waterfall" v-if="allNotes&&allNotes.length">
-            <div slot-scope="slotProps" class="note" draggable="true" :style="{background:colors[random()]}">
+            <div slot-scope="slotProps" class="note" draggable="true" :style="{background:colors[random()]}" @dragend="dragEnd">
                 <div class="time">
                     {{slotProps.prop.createdAt|time}}
                     <x-icon name="x" class="icon" title="删除" @click="onDelete(slotProps.prop)"></x-icon>
@@ -53,9 +53,15 @@
                 return Math.floor(Math.random() * 6);
             },
             onDelete(note) {
-                console.log(note.id);
-
                 this.destroyNote(note.id);
+            },
+            dragEnd(e) {
+                let el = e.target;
+                let { x: ox, y: oy } = el.getBoundingClientRect();
+                let { x: nx, y: ny } = e;
+                let deltaX = nx - ox;
+                let deltaY = ny - oy;
+                el.style.transform = `translateX(${deltaX}px) translateY(${deltaY}px)`;
             }
         },
     }
